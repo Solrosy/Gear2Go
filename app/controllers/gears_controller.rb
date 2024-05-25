@@ -11,13 +11,13 @@ class GearsController < ApplicationController
   def my_gears
     @gears = current_user.gears
   end
-  
+
 
   def show
     @booking = Booking.new
     @gear = Gear.find(params[:id])
     @date = Date.parse(params.fetch(:date, Date.today).to_s)
-    @next_7_days_with_slots = @gear.next_n_days_with_slots(7)
+    @next_7_days_with_slots = @gear.next_n_days_with_slots(@date.to_date, 7)
   end
 
   def new

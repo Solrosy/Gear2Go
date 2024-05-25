@@ -26,10 +26,7 @@
         <div>
           <h2>Booking details</h2>
           <div>Choose a date</div>
-          <% available_slots = @next_7_days_with_slots.first[:slots] %>
 
-
-          <%= form_with(model: [@gear, @booking], url: gear_bookings_path(@gear), html: { class: 'needs-validation', novalidate: true }) do |form| %>
           <div data-controller="booking" data-booking-slots-value="<%= @next_7_days_with_slots.to_json %>" >
 
             <div class="row mx-0">
@@ -40,6 +37,7 @@
                 </div>
               </div>
 
+              <%# Weekday buttons %>
               <% (@date..@date + 6.day).to_a.each do |day| %>
                 <div class="col border text-center p-0">
                   <div class="btn w-100" data-booking-target="date" data-action="click->booking#switchDate">
@@ -55,19 +53,20 @@
                   <%= link_to ">", gear_path(@gear, date: @date + 1.week), class: "btn w-100"  %>
                 </div>
               </div>
-
             </div>
 
-            <%# Available times %>
-              <div class="form mt-3">
-                <div class="form-group mb-3">
-                  <%= form.label :start_time, "Select available time", class: "form-label" %>
-                  <%= form.select :start_time, available_slots, {}, { class: "form-control", data: { booking_target: "timeSelect"} } %>
+              <%= form_with(model: [@gear, @booking], url: gear_bookings_path(@gear), html: { class: 'needs-validation', novalidate: true }) do |form| %>
+              <%# Available times %>
+                <div class="form mt-3">
+                  <div class="form-group mb-3">
+                    <%= form.label :start_time, "Select available time", class: "form-label" %>
+                    <%= form.select :start_time, @next_7_days_with_slots.first[:slots], {}, { class: "form-control", data: { booking_target: "timeSelect"} } %>
+                  </div>
                 </div>
-              </div>
-            </div>
           </div>
-          
+
+
+
             <h4>Personal details</h4>
             <div class="form-group mb-3">
               <%= form.label :first_name, class: "form-label" %>
