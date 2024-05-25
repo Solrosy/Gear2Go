@@ -26,16 +26,39 @@
         <div>
           <h2>Booking details</h2>
           <div>Choose a date</div>
-          <% dates = @next_7_days_with_slots.map { |day| day[:date] } %>
           <% available_slots = @next_7_days_with_slots.first[:slots] %>
+
+
           <%= form_with(model: [@gear, @booking], url: gear_bookings_path(@gear), html: { class: 'needs-validation', novalidate: true }) do |form| %>
-            <div data-controller="booking" data-booking-slots-value="<%= @next_7_days_with_slots.to_json %>" >
-              <% dates.each do |date| %>
-                <div class="text-white btn btn-primary m-1" data-booking-target="date" data-action="click->booking#switchDate">
-                  <%= date %>
+          <div data-controller="booking" data-booking-slots-value="<%= @next_7_days_with_slots.to_json %>" >
+
+            <div class="row mx-0">
+              <%# Previous week button %>
+              <div class="col border text-center p-0">
+                <div class="btn w-100">
+                  <%= link_to "<", gear_path(@gear, date: @date - 1.week), class: "btn w-100" %>
+                </div>
+              </div>
+
+              <% (@date..@date + 6.day).to_a.each do |day| %>
+                <div class="col border text-center p-0">
+                  <div class="btn w-100" data-booking-target="date" data-action="click->booking#switchDate">
+                    <%= day.strftime("%a") %><br>
+                    <%= day.strftime("%d") %>
+                  </div>
                 </div>
               <% end %>
 
+              <%# Next week button %>
+              <div class="col border text-center p-0">
+                <div class="btn w-100">
+                  <%= link_to ">", gear_path(@gear, date: @date + 1.week), class: "btn w-100"  %>
+                </div>
+              </div>
+
+            </div>
+
+            <%# Available times %>
               <div class="form mt-3">
                 <div class="form-group mb-3">
                   <%= form.label :start_time, "Select available time", class: "form-label" %>
@@ -43,6 +66,8 @@
                 </div>
               </div>
             </div>
+          </div>
+          
             <h4>Personal details</h4>
             <div class="form-group mb-3">
               <%= form.label :first_name, class: "form-label" %>
@@ -63,6 +88,6 @@
               <%= form.submit "Book now", class: "text-white btn btn-primary w-100" %>
             </div>
           <% end %>
-        </div>
+
       </div>
   </div>

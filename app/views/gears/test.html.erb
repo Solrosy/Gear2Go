@@ -1,0 +1,6 @@
+           <div data-controller="booking" data-booking-slots-value="<%= @next_7_days_with_slots.to_json %>" >
+              <% dates.each do |date| %>
+                <div class="text-white btn btn-primary m-1" data-booking-target="date" data-action="click->booking#switchDate">
+                  <%= day %>
+                </div>
+              <% end %>
