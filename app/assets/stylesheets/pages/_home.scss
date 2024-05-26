@@ -19,3 +19,10 @@ html {
   transform: scale(1.02);
 }
 
+.slot {
+  &.active {
+    background-color: #FFC659;
+    color: black;
+    border: gray;
+  }
+}

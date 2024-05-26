@@ -7,8 +7,8 @@ class BookingsController < ApplicationController
 
   def create
     @gear = Gear.find(params[:gear_id])
-    date = Date.parse(booking_params[:start_time]) || Date.today
-    @available_slots = @gear.available_slots_for_day(date)
+    # date = DateTime.parse(params[:slot]) || DateTime.now
+    # @available_slots = @gear.available_slots_for_day(date)
 
     # Find or create the user
     @user = User.find_or_initialize_by(email: booking_params[:email])
@@ -20,11 +20,13 @@ class BookingsController < ApplicationController
     end
 
     # Create the booking
-    @booking = @gear.bookings.new(booking_params.except(:first_name, :last_name, :email, :date))
+    @booking = @gear.bookings.new(booking_params.except(:first_name, :last_name, :email, :date, :slot))
+    @booking.start_time = DateTime.parse(params[:slot])
     @booking.user = @user
     @booking.total_price = @gear.hourly_rate
-    @booking.start_time = booking_params[:start_time]
+
     if @booking.save
+      puts "Booking saved"
       redirect_to gear_booking_path(@gear, @booking), notice: 'Booking was successfully created.'
     else
       render 'gears/show'
@@ -38,6 +40,6 @@ class BookingsController < ApplicationController
   private
 
   def booking_params
-    params.require(:booking).permit(:start_time, :first_name, :last_name, :email, :date)
+    params.require(:booking).permit(:first_name, :last_name, :email, :date, :slot)
   end
 end

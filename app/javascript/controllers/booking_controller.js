@@ -1,14 +1,14 @@
-import { Controller } from "@hotwired/stimulus"
+import { Controller } from '@hotwired/stimulus'
 
 // Connects to data-controller="booking"
 // Loads the available slots for the current day
 export default class extends Controller {
-  static targets = [ "date", "timeSelect" ]
+  static targets = [ 'date', 'timeSelect' ]
   static values = { slots: Array }
 
   connect() {
     // Set the first date button to active
-    this.dateTargets[0].classList.add("active", "btn-info");
+    this.dateTargets[0].classList.add('active', 'btn-info');
 
     // Preload the data with slots for the next 7 days
     this.slots = this.slotsValue
@@ -18,20 +18,23 @@ export default class extends Controller {
 
     // Get the slots for the current date which is the first index of the slots array
     this.generateTimeSlotDivs(this.slots[0].slots);
+
+    // Set the displayed date to the active button
+    this.updateSelectedDate();
   }
 
   // Switch the active date button and fill the slots for the selected date
   switchDate(event) {
     event.preventDefault();
 
-    document.querySelectorAll(".active").forEach((date) => {
-      date.classList.remove("active", "btn-info");
+    document.querySelectorAll('.active').forEach((date) => {
+      date.classList.remove('active', 'btn-info');
     });
 
-    event.target.classList.add("active", "btn-info");
+    event.target.classList.add('active', 'btn-info');
 
     // Get the selected date
-    let selectedDate = event.target.dataset.bookingDateValue.trim();
+    let selectedDate = event.target.dataset.bookingDateValue;
 
     // Find slots for the selected date
     const slotsForDate = this.findSlotsForDate(selectedDate);
@@ -43,6 +46,9 @@ export default class extends Controller {
     if (slotsForDate) {
       this.generateTimeSlotDivs(slotsForDate);
     }
+
+    // Update the displayed selected date
+    this.updateSelectedDate();
   }
 
   findSlotsForDate(selectedDate) {
@@ -53,15 +59,90 @@ export default class extends Controller {
   generateTimeSlotDivs(slots) {
     // Generate and add new divs for each time slot
     slots.forEach(slot => {
-      const div = document.createElement("div");
-      let formatted_slot = slot.substring(11, 16);
-      div.innerText = formatted_slot;
-      div.dataset.bookingDateValue = slot;
-      div.classList.add('slot', 'btn', 'btn-primary', 'p-2', 'm-1');
-      // Buttons with available slots for the date selected
-      this.timeSelectTarget.parentElement.insertAdjacentElement('beforeend', div);
-      // To double-check if the divs are being created
-      console.log(div);
+        const div = document.createElement('div');
+        let formatted_slot = slot.substring(11, 16);
+        div.innerText = `${formatted_slot}h`;
+        div.dataset.bookingDateValue = slot;
+        div.classList.add('slot', 'btn', 'btn-light', 'border', 'p-3', 'm-1');
+
+        // Add event listener to the div
+        div.addEventListener('click', function() {
+            // Remove the 'active' class from all divs
+            document.querySelectorAll('.slot').forEach(slot => {
+                slot.classList.remove('active');
+            });
+
+            // Add the 'active' class to the clicked div
+            this.classList.add('active');
+        });
+
+        // Buttons with available slots for the date selected
+        this.timeSelectTarget.parentElement.insertAdjacentElement('beforeend', div);
+
+        // To double-check if the divs are being created
+        // console.log(div);
     });
   }
+
+  // Get and format the selected date, then update the displayed selected date
+  updateSelectedDate() {
+    // Get the active button
+    const activeButton = document.querySelector('.active');
+
+    // Get the selected date from the active button
+    let selectedDateDisplay = activeButton.dataset.bookingDateValue || this.date || new Date().toISOString().split('T')[0];
+
+    // Update the displayed selected date
+    const selectedDateDiv = document.getElementById('selected-date');
+    selectedDateDiv.innerText = `Date ${selectedDateDisplay}`;
+  }
 }
+
+// Get the form
+const form = document.querySelector('form');
+
+// Add event listener to the form
+form.addEventListener('submit', function(event) {
+  event.preventDefault();
+
+  // Get the active slot
+  const activeSlot = document.querySelector('.slot.active');
+
+  if (activeSlot) {
+    const bookingDate = activeSlot.dataset.bookingDateValue;
+    // Logs the Stimulus value of the selected slot
+    // console.log(bookingDate);
+    } else {
+      console.log('No slot selected!');
+  }
+
+  // Get the value of the selected slot
+  const selectedSlotValue = activeSlot.dataset.bookingDateValue;
+  console.log(selectedSlotValue);
+
+  // Get the form inputs
+  const formData = new FormData(event.target);
+
+  // Add the selected slot value to the form data
+  formData.append('slot', selectedSlotValue);
+
+  // Log each key and value from the form data
+  for (let pair of formData.entries()) {
+    console.log(pair[0] + ', ' + pair[1]);
+  }
+
+  // Send the form data to the server
+  fetch(form.action, {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    // Handle the response data
+    console.log(data);
+  })
+  .catch(error => {
+    // Handle the error
+    console.error('Error:', error);
+  });
+});
