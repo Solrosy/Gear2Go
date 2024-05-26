@@ -23,16 +23,11 @@ class BookingsController < ApplicationController
     @booking.user = @user
     @booking.total_price = @gear.hourly_rate
 
-    begin
-      if @booking.save
-        redirect_to gear_booking_path(@gear, @booking)
-      else
-        flash[:error] = @booking.errors.full_messages.join(", ")
-        render 'gears/show'
-      end
-    rescue => e
-      Rails.logger.error "Error in BookingsController#create: #{e.message}"
-      flash[:error] = "Something went wrong. Please try again."
+    # Redirect to confirmation page after saving
+    if @booking.save
+      redirect_to gear_booking_path(@gear, @booking)
+    else
+      flash[:error] = @booking.errors.full_messages.join(", ")
       render 'gears/show'
     end
   end
