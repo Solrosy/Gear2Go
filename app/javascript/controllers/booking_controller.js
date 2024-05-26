@@ -118,7 +118,7 @@ form.addEventListener('submit', function(event) {
 
   // Get the value of the selected slot
   const selectedSlotValue = activeSlot.dataset.bookingDateValue;
-  console.log(selectedSlotValue);
+
 
   // Get the form inputs
   const formData = new FormData(event.target);
@@ -127,19 +127,24 @@ form.addEventListener('submit', function(event) {
   formData.append('slot', selectedSlotValue);
 
   // Log each key and value from the form data
-  for (let pair of formData.entries()) {
-    console.log(pair[0] + ', ' + pair[1]);
-  }
+  // for (let pair of formData.entries()) {
+  //   console.log(pair[0] + ', ' + pair[1]);
+  // }
 
   // Send the form data to the server
   fetch(form.action, {
     method: 'POST',
     body: formData
   })
-  .then(response => response.json())
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.text();
+  })
   .then(data => {
     // Handle the response data
-    console.log(data);
+    document.documentElement.innerHTML = data;
   })
   .catch(error => {
     // Handle the error
