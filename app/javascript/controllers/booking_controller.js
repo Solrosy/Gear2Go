@@ -25,7 +25,11 @@ export default class extends Controller {
     // Add submit event listener to the form
     const form = document.querySelector('form');
     form.addEventListener('submit', this.handleSubmit.bind(this));
+
+    // Add click event listener to the id="continue" button
+    document.getElementById('continue').addEventListener('click', this.goToStep2.bind(this));
   }
+
 
   // Switch the active date button and fill the slots for the selected date
   switchDate(event) {
@@ -61,6 +65,8 @@ export default class extends Controller {
   }
 
   generateTimeSlotDivs(slots) {
+    // To set the first div as active - SL
+    let isFirst = true;
     // Generate and add new divs for each time slot
     slots.forEach(slot => {
         const div = document.createElement('div');
@@ -68,6 +74,12 @@ export default class extends Controller {
         div.innerText = `${formatted_slot}h`;
         div.dataset.bookingDateValue = slot;
         div.classList.add('slot', 'btn', 'btn-light', 'border', 'p-3', 'm-1');
+
+        // Add 'active' class to the first div - SL
+        if (isFirst) {
+          div.classList.add('active');
+          isFirst = false; // Set the flag to false after the first element
+        }
 
         // Add event listener to the div
         div.addEventListener('click', function() {
@@ -78,6 +90,11 @@ export default class extends Controller {
 
             // Add the 'active' class to the clicked div
             this.classList.add('active');
+        });
+
+        // Add click event listener to the id="back" button
+        document.getElementById('back').addEventListener('click', () => {
+          this.goToStep1();
         });
 
         // Buttons with available slots for the date selected
@@ -99,6 +116,17 @@ export default class extends Controller {
     // Update the displayed selected date
     const selectedDateDiv = document.getElementById('selected-date');
     selectedDateDiv.innerText = `Date ${selectedDateDisplay}`;
+  }
+
+  // Supports going back in form steps
+  goToStep1() {
+    document.getElementById('step2').classList.add('d-none');
+    document.getElementById('step1').classList.remove('d-none');
+  }
+
+  goToStep2() {
+    document.getElementById('step1').classList.add('d-none');
+    document.getElementById('step2').classList.remove('d-none');
   }
 
   handleSubmit(event) {
