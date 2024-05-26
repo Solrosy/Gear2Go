@@ -7,8 +7,6 @@ class BookingsController < ApplicationController
 
   def create
     @gear = Gear.find(params[:gear_id])
-    # date = DateTime.parse(params[:slot]) || DateTime.now
-    # @available_slots = @gear.available_slots_for_day(date)
 
     # Find or create the user
     @user = User.find_or_initialize_by(email: booking_params[:email])
@@ -20,8 +18,8 @@ class BookingsController < ApplicationController
     end
 
     # Create the booking
-    @booking = @gear.bookings.new(booking_params.except(:first_name, :last_name, :email, :date, :slot))
-    @booking.start_time = DateTime.parse(params[:slot])
+    @booking = @gear.bookings.new(booking_params.except(:first_name, :last_name, :email, :date))
+    @booking.start_time = DateTime.parse(params[:start_time])
     @booking.user = @user
     @booking.total_price = @gear.hourly_rate
 
@@ -46,6 +44,6 @@ class BookingsController < ApplicationController
   private
 
   def booking_params
-    params.require(:booking).permit(:first_name, :last_name, :email, :date, :slot)
+    params.require(:booking).permit(:first_name, :last_name, :email, :date, :start_time)
   end
 end

@@ -3,7 +3,7 @@ import { Controller } from '@hotwired/stimulus'
 // Connects to data-controller="booking"
 // Loads the available slots for the current day
 export default class extends Controller {
-  static targets = [ 'date', 'timeSelect' ]
+  static targets = ['date', 'timeSelect']
   static values = { slots: Array }
 
   connect() {
@@ -21,6 +21,10 @@ export default class extends Controller {
 
     // Set the displayed date to the active button
     this.updateSelectedDate();
+
+    // Add submit event listener to the form
+    const form = document.querySelector('form');
+    form.addEventListener('submit', this.handleSubmit.bind(this));
   }
 
   // Switch the active date button and fill the slots for the selected date
@@ -96,58 +100,32 @@ export default class extends Controller {
     const selectedDateDiv = document.getElementById('selected-date');
     selectedDateDiv.innerText = `Date ${selectedDateDisplay}`;
   }
-}
 
-// Get the form
-const form = document.querySelector('form');
+  handleSubmit(event) {
+    event.preventDefault();
 
-// Add event listener to the form
-form.addEventListener('submit', function(event) {
-  event.preventDefault();
+    // Get the active slot
+    const activeSlot = document.querySelector('.slot.active');
 
-  // Get the active slot
-  const activeSlot = document.querySelector('.slot.active');
-
-  if (activeSlot) {
-    const bookingDate = activeSlot.dataset.bookingDateValue;
-    // Logs the Stimulus value of the selected slot
-    // console.log(bookingDate);
-    } else {
-      console.log('No slot selected!');
-  }
-
-  // Get the value of the selected slot
-  const selectedSlotValue = activeSlot.dataset.bookingDateValue;
-
-
-  // Get the form inputs
-  const formData = new FormData(event.target);
-
-  // Add the selected slot value to the form data
-  formData.append('slot', selectedSlotValue);
-
-  // Log each key and value from the form data
-  // for (let pair of formData.entries()) {
-  //   console.log(pair[0] + ', ' + pair[1]);
-  // }
-
-  // Send the form data to the server
-  fetch(form.action, {
-    method: 'POST',
-    body: formData
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    // Check if a slot is selected
+    if (!activeSlot) {
+      alert('Please select a time.');
+      return;
     }
-    return response.text();
-  })
-  .then(data => {
-    // Handle the response data
-    document.documentElement.innerHTML = data;
-  })
-  .catch(error => {
-    // Handle the error
-    console.error('Error:', error);
-  });
-});
+
+    // Get the value of the selected slot
+    const selectedSlotValue = activeSlot.dataset.bookingDateValue;
+
+    // Create a hidden input element to hold the start_time value
+    let hiddenInput = document.createElement('input');
+    hiddenInput.type = 'hidden';
+    hiddenInput.name = 'start_time';
+    hiddenInput.value = selectedSlotValue;
+
+    // Append the hidden input to the form
+    event.target.appendChild(hiddenInput);
+
+    // Submit the form
+    event.target.submit();
+  }
+}
