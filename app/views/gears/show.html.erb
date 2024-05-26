@@ -25,47 +25,46 @@
       <div class="col-12 col-sm-12 col-lg-8 py-3">
         <div>
           <h2>Booking details</h2>
-          <div>Choose a date</div>
+          <div class="my-2">Choose a date</div>
 
-          <div data-controller="booking" data-booking-slots-value="<%= @next_7_days_with_slots.to_json %>" >
-
+          <div id="data-controller" data-controller="booking" data-booking-slots-value="<%= @next_7_days_with_slots.to_json %>" >
             <div class="row mx-0">
               <%# Previous week button %>
-              <div class="col border text-center p-0">
-                <div class="btn w-100">
-                  <%= link_to "<", gear_path(@gear, date: @date - 1.week), class: "btn w-100" %>
+              <div class="col text-center p-0 align-self-center">
+                <div>
+                  <% if @date > Date.today %>
+                    <%= link_to "<", gear_path(@gear, date: @date - 1.week), class: "btn btn-light" %>
+                  <% else %>
+                    <%= link_to "<", "#", class: "btn disabled" %>
+                  <% end %>
                 </div>
               </div>
 
               <%# Weekday buttons %>
               <% (@date..@date + 6.day).to_a.each do |day| %>
-                <div class="col border text-center p-0">
-                  <div class="btn w-100" data-booking-target="date" data-action="click->booking#switchDate">
+                <div class="col border text-center p-0 align-self-center">
+                  <div class="btn w-100" data-booking-target="date" data-action="click->booking#switchDate" data-booking-date-value="<%= day %> ">
                     <%= day.strftime("%a") %><br>
-                    <%= day.strftime("%d") %>
+                    <%= day.strftime("%m-%d") %>
                   </div>
                 </div>
               <% end %>
 
               <%# Next week button %>
-              <div class="col border text-center p-0">
-                <div class="btn w-100">
-                  <%= link_to ">", gear_path(@gear, date: @date + 1.week), class: "btn w-100"  %>
+              <div class="col text-center p-0 align-self-center">
+                <div>
+                  <%= link_to ">", gear_path(@gear, date: @date + 1.week), class: "btn btn-light"  %>
                 </div>
               </div>
             </div>
 
-              <%= form_with(model: [@gear, @booking], url: gear_bookings_path(@gear), html: { class: 'needs-validation', novalidate: true }) do |form| %>
-              <%# Available times %>
-                <div class="form mt-3">
-                  <div class="form-group mb-3">
-                    <%= form.label :start_time, "Select available time", class: "form-label" %>
-                    <%= form.select :start_time, @next_7_days_with_slots.first[:slots], {}, { class: "form-control", data: { booking_target: "timeSelect"} } %>
-                  </div>
-                </div>
+            <%= form_with(model: [@gear, @booking], url: gear_bookings_path(@gear), html: { class: 'needs-validation', novalidate: true }) do |form| %>
+
+            <%# Available time slots as buttons %>
+            <div class="d-flex flex-column">
+              <div data-booking-target="timeSelect"></div>
+            </div>
           </div>
-
-
 
             <h4>Personal details</h4>
             <div class="form-group mb-3">

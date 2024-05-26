@@ -17,7 +17,8 @@ class GearsController < ApplicationController
     @booking = Booking.new
     @gear = Gear.find(params[:id])
     @date = Date.parse(params.fetch(:date, Date.today).to_s)
-    @next_7_days_with_slots = @gear.next_n_days_with_slots(@date.to_date, 7)
+    @date = Date.today if @date < Date.today
+    @next_7_days_with_slots = @gear.next_n_days_with_slots(@date.to_date, 6)
   end
 
   def new
